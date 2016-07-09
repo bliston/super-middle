@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "grunt": "^0.4.5"
+    "grunt": "^0.4.5",
+    "webmidi": "^2.0.0-alpha.6",
+    "teoria": "^2.2.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "babelify": "^6.1.0",
