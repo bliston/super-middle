@@ -25,7 +25,7 @@ $(document).ready(function() {
 	    		}
     		}
     		else{
-    			//stopNote(melody[melodyIndex > 0 ? melodyIndex - 1 : 0]);
+    			stopNote(melody[melodyIndex > 0 ? melodyIndex - 1 : 0]);
     		}
     	}
     	else{// note < chords.length => TREATED AS A CHORD
