@@ -2,17 +2,50 @@ $(document).ready(function() {
     var midiInput;
     var midiOutput;
     initGUI();
-    var chordNames = ['D', 'G/D', 'D', 'A/D', 'D', 'D/F#', 'G', 'D', 'A/D', 'D'];
+    //var chordNames = ['D', 'G/D', 'D', 'A/D', 'D', 'D/F#', 'G', 'D', 'A/D', 'D']; //amazing grace
+    //var chordNames = ['Em', 'G', 'D', 'C', 'Em', 'D', 'Bm', 'C', 'Em', 'D', 'C', 'Em', 'C', 'G', 'D']; //adele hello
+    //var chordNames = ['Am', 'F', 'Em', 'Am', 'Am', 'Dm', 'G', 'Am', 'Am', 'F', 'G', 'Am', 'Am', 'Dm', 'Em', 'Am']; //ariana - be alright
+    var chords = ['F#m', 'DM7', 'Bm', 'E7', 'AM7', 'DM7', 'AM7', 'DM7', 'G#m7b5', 'C#7b9']; //F#m My Favorite Things
+    var melody = ['f#5', 'c#6', 'c#6', 'g#5', 'f#5', 'f#5', 'c#5', 'f#5', 'f#5', 'g#5', 'f#5',
+   					'f#5', 'c#6', 'c#6', 'g#5', 'f#5', 'f#5', 'c#5', 'f#5', 'f#5', 'g#5', 'f#5',
+   					'f#5', 'c#6', 'b5', 'f#5', 'g#5', 'e5', 'e5', 'b5', 'a5', 'd5',
+   					'c#5', 'd5', 'e5', 'f#5', 'g#5', 'a5', 'b5', 'c#6', 'b5', 'e#5'];
+   	var melodyIndex = 0;
     function handleMidiIn(t, status, note, vel) {
     	vel/=128;
-    	var chordName = chordNames[note % chordNames.length];
-    	if(status === 128 || (status === 144 && vel === 0)){
-    		stopChord(chordName);
+    	var noteOff = isNoteOff(status, vel); 
+    	if(note >= chords.length){ // TREATED AS MELODY
+    		if(!noteOff){
+    			if(melodyIndex < melody.length){
+    				playNote(melody[melodyIndex++], vel);
+    			}
+	    		else{
+	    			melodyIndex = 0;
+	    			playNote(melody[melodyIndex++], vel);
+	    		}
+    		}
+    		else{
+    			//stopNote(melody[melodyIndex > 0 ? melodyIndex - 1 : 0]);
+    		}
     	}
-    	else{
-    		playChord(chordName, vel);
+    	else{// note < chords.length => TREATED AS A CHORD
+	    	var chordName = chords[note];
+	    	if(noteOff){
+	    		stopChord(chordName);
+	    	}
+	    	else{
+	    		playChord(chordName, vel);
+	    	}
     	}
         
+    }
+
+    function isNoteOff(status, vel){
+    	var result = false;
+    	if(status === 128 || (status === 144 && vel === 0)){
+    		result = true;
+    	}
+	    return result;
     }
 
     function chordMIDI(chordName){
@@ -21,6 +54,11 @@ $(document).ready(function() {
     		return note.midi();
     	});
     	return midi;
+    }
+
+    function noteMIDI(noteName){
+    	var note = teoria.note(noteName);
+    	return note.midi();
     }
 
     function playChord(chordName, vel){
@@ -37,6 +75,16 @@ $(document).ready(function() {
     	});
     }
 
+
+    function playNote(noteName, vel){
+    	var midi = noteMIDI(noteName);
+    	midiOutput.playNote(midi, 1, {velocity: vel});
+    }
+
+    function stopNote(noteName){
+    	var midi = noteMIDI(noteName);
+    	midiOutput.stopNote(midi);
+    }
 
     function webMidiEnable(err) {
         if (err) console.log("An error occurred", err);
